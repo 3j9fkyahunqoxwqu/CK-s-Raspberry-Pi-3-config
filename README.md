@@ -3,7 +3,7 @@
 My own guide to use PI 3 with some good programs. <br />
 Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-Essentials-Kit-board-Connectivity/dp/B01LWVVMUI/ref=sr_1_4?ie=UTF8&qid=1502666099&sr=8-4&keywords=raspberry+pi+3+starter+kit). <br />
 
-* The benefit is that you not need any external software like adblockers anymore (maybe only for cosmetic blocking). <br />
+* The benefit is that you not need any external software like adblockers any more (maybe only for cosmetic blocking). <br />
 * All external devices you plugin onto your Router getting automatically the adblocker lists too, which means you not need to root your device (because efficient adblockers always requiring root or some kind of tunnel which drains your battery).<br />
 * OpenVPN and DNSCrypt are included for your maximum security which avoids e.g. DNS leaks.
 * Noob friendly setup instructions.
@@ -21,13 +21,13 @@ Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-E
 * Select 7 `Advanced Options` -> A3 `Memory Split` -> Enter `16`
 * Update Raspbian and the Linux kernel.
 
-```
+```bash
 sudo apt update && sudo apt -y upgrade
 sudo apt install -y rpi-update
 sudo rpi-update
 ```
 
-* Reboot your Raspberry Pi via `sudo reboot`
+* Reboot your Raspberry Pi via `sudo reboot`.
 
 
 ### Install OpenVPN
@@ -43,10 +43,10 @@ If the Raspberry Pi is behind a router (NAT) you have to configure port forwardi
 ### Setup OpenVPN
 
 
-* Find the IP of the tun0 interface via `ifconfig tun0 | grep 'inet addr'`
-* This e.g. returns `inet addr:10.8.0.1  P-t-P:10.8.0.1  Mask:255.255.255.0`
-* Edit the file */etc/openvpn/server.conf* via `sudo nano /etc/openvpn/server.conf`
-* Modify push `"dhcp-option DNS 8.8.8.8"` to push `"dhcp-option DNS 10.8.0.1"`
+* Find the IP of the tun0 interface via `ifconfig tun0 | grep 'inet addr'`.
+* This e.g. returns `inet addr:10.8.0.1  P-t-P:10.8.0.1  Mask:255.255.255.0`.
+* Edit the file */etc/openvpn/server.conf* via `sudo nano /etc/openvpn/server.conf`.
+* Modify push `"dhcp-option DNS 8.8.8.8"` to push `"dhcp-option DNS 10.8.0.1"`.
 * Close and save the file with *Ctrl+X*, enter *y*, enter.
 * Restart OpenVPN via `sudo systemctl restart openvpn`.
 
@@ -54,7 +54,7 @@ If the Raspberry Pi is behind a router (NAT) you have to configure port forwardi
 
 ### Install Pi-Hole
 
-* Edit */etc/dnsmasq.conf*.
+* Edit */etc/dnsmasq.conf* via: `sudo nano /etc/dnsmasq.conf`.
 * Modify `#listen-address=` to: `listen-address=127.0.0.1, 192.168.xxx.xxx, 10.8.0.1`.
 * Replace the second IP with your Raspberry Pi local network IP and the third IP is the *tun0* interface.
 * Restart DNSMasq via `sudo systemctl restart dnsmasq`.
@@ -149,14 +149,17 @@ sudo systemctl enable dnscrypt-proxy@dnscrypt.nl-ns0.socket
 
 ### Modify DNSMasq configurations
 
-* Create a additional DNSMasq configuration file: `sudo nano /etc/dnsmasq.d/02-dnscrypt.conf`.
+* Create an additional DNSMasq configuration file: `sudo nano /etc/dnsmasq.d/02-dnscrypt.conf`.
 * Enter the following in the file: `server=127.10.10.1#11153`.
 * Edit 01-pihole.conf: `sudo nano /etc/dnsmasq.d/01-pihole.conf`.
 * Comment (#) out all server references, which means everything which looks like: `#server=...`.
 * Edit setupVars.conf: `sudo nano /etc/pihole/setupVars.conf`.
 * Comment (#) out all piholeDNS references: `#piholeDNS1=...`.
 * Restart DNSMasq: `sudo systemctl restart dnsmasq`.
-* Reboot Raspberry Pi the last time: `sudo reboot`.
+* Reboot Raspberry Pi the last time with: `sudo reboot`.
+
+
+You're done! 
 
 
 
