@@ -3,7 +3,7 @@
 My own guide to use PI 3 with some good programs. <br />
 Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-Essentials-Kit-board-Connectivity/dp/B01LWVVMUI/ref=sr_1_4?ie=UTF8&qid=1502666099&sr=8-4&keywords=raspberry+pi+3+starter+kit). <br />
 
-* The benefit is that you not need any external software like adblockers any more (maybe only for cosmetic blocking). <br />
+* The benefit is that you not need any external software like adblockers any more (maybe only for cosmetic blocking).<br />
 * All external devices you plugin onto your Router getting automatically the adblocker lists too, which means you not need to root your device (because efficient adblockers always requiring root or some kind of tunnel which drains your battery).<br />
 * OpenVPN and DNSCrypt are included for your maximum security which avoids e.g. DNS leaks.
 * Noob friendly setup instructions.
@@ -11,7 +11,7 @@ Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-E
 
 ### Clean system installation
 
-* Download [Raspbian Jessie Lite](https://www.raspberrypi.org/downloads/raspbian/) from Raspberrypi.org and install it onto your microSD card. I use [SD Card Formatter v5.0](https://www.sdcard.org/downloads/formatter_4/) to format the microSD card and [Download USB Image Tool 1.74](http://www.alexpage.de/usb-image-tool/download/) (as alternative you can use [Etcher](https://etcher.io/) to install Raspbian Jessie Lite onto it.
+* Download [Raspbian Jessie Lite](https://www.raspberrypi.org/downloads/raspbian/) from Raspberrypi.org and install it onto your microSD card. I use [SD Card Formatter v5.0](https://www.sdcard.org/downloads/formatter_4/) to format the microSD card and [Download USB Image Tool 1.74](http://www.alexpage.de/usb-image-tool/download/) (as alternative you can use [Etcher](https://etcher.io/)) to install Raspbian Jessie Lite onto it.
 
 
 * Optimize Raspberry Pi via `sudo raspi-config`
@@ -160,9 +160,4 @@ sudo systemctl enable dnscrypt-proxy@dnscrypt.nl-ns0.socket
 
 
 You're done! 
-
-
-
-
-
 
