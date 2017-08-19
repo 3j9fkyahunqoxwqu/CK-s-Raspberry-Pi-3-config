@@ -11,7 +11,7 @@ Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-E
 
 ### Clean system installation
 
-* Download [Raspbian Jessie Lite](https://www.raspberrypi.org/downloads/raspbian/) from Raspberrypi.org and install it onto your microSD card. I use [SD Card Formatter v5.0](https://www.sdcard.org/downloads/formatter_4/) to format the microSD card and [Download USB Image Tool 1.74](http://www.alexpage.de/usb-image-tool/download/) (as alternative you can use [Etcher](https://etcher.io/)) to install Raspbian Jessie Lite onto it.
+* Download [Raspbian STRETCH Lite](https://www.raspberrypi.org/downloads/raspbian/) from Raspberrypi.org and install it onto your microSD card. I use [SD Card Formatter v5.0](https://www.sdcard.org/downloads/formatter_4/) to format the microSD card and [Download USB Image Tool 1.74](http://www.alexpage.de/usb-image-tool/download/) (as alternative you can use [Etcher](https://etcher.io/)) to install Raspbian STRETCH Lite onto it.
 
 
 * Optimize Raspberry Pi via `sudo raspi-config`
