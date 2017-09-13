@@ -1,3 +1,7 @@
+[![GitHub stars](https://img.shields.io/github/stars/badges/shields.svg?style=social&label=Star)](https://github.com/CHEF-KOCH/CK-s-Raspberry-Pi-3-config)
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/CHEF-KOCH)
+
 ## Raspberry Pi 3 + Pi-Hole + OpenVPN & DNSCrypt
 
 My own guide to use PI 3 with some good programs. <br />
