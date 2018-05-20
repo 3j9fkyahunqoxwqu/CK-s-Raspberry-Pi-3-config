@@ -46,7 +46,6 @@ If the Raspberry Pi is behind a router (NAT) you have to configure port forwardi
 
 ### Setup OpenVPN
 
-
 * Find the IP of the tun0 interface via `ifconfig tun0 | grep 'inet addr'`.
 * This e.g. returns `inet addr:10.8.0.1  P-t-P:10.8.0.1  Mask:255.255.255.0`.
 * Edit the file */etc/openvpn/server.conf* via `sudo nano /etc/openvpn/server.conf`.
@@ -57,6 +56,8 @@ If the Raspberry Pi is behind a router (NAT) you have to configure port forwardi
 
 
 ### Install Pi-Hole
+
+You can get the latest version of Pi-Hole including installation instructions from [here](https://github.com/pi-hole/pi-hole).
 
 * Edit */etc/dnsmasq.conf* via: `sudo nano /etc/dnsmasq.conf`.
 * Modify `#listen-address=` to: `listen-address=127.0.0.1, 192.168.xxx.xxx, 10.8.0.1`.
