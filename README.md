@@ -7,15 +7,15 @@
 My own guide to use PI 3 with some good programs. <br />
 Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-Essentials-Kit-board-Connectivity/dp/B01LWVVMUI/ref=sr_1_4?ie=UTF8&qid=1502666099&sr=8-4&keywords=raspberry+pi+3+starter+kit). <br />
 
-* The benefit is that you not need any external software like adblockers any more (maybe only for cosmetic blocking).<br />
+* The benefit is that you won't need any external software like adblockers (uBlock, AdGuard, etc) any more. Maybe only for cosmetic filter rules. Ads getting blocked before they're getting downloaded which speedups your webpage loading.<br />
 * All external devices you plugin onto your Router getting automatically the adblocker lists too, which means you not need to root your device (because efficient adblockers always requiring root or some kind of tunnel which drains your battery).<br />
-* OpenVPN and DNSCrypt are included for your maximum security which avoids e.g. DNS leaks.
-* Noob friendly setup instructions.
+* OpenVPN and DNSCrypt are included in order to encrypt your internet data traffic and DNS queries. This also will solve any DNS leaks in this case spoofing.
+* The guide is beginner friendly with easy install instructions.
 
 
 ### Clean system installation
 
-* Download [Raspbian STRETCH Lite](https://www.raspberrypi.org/downloads/raspbian/) from Raspberrypi.org and install it onto your microSD card. I use [SD Card Formatter v5.0](https://www.sdcard.org/downloads/formatter_4/) to format the microSD card and [Download USB Image Tool 1.74](http://www.alexpage.de/usb-image-tool/download/) (as alternative you can use [Etcher](https://etcher.io/)) to install Raspbian STRETCH Lite onto it.
+* Download [Raspbian Lite](https://downloads.raspberrypi.org/raspbian_lite_latest) from Raspberrypi.org and install it onto your microSD card. I use [SD Card Formatter v4.0](https://www.sdcard.org/downloads/formatter_4/) and to format the microSD card [Download USB Image Tool 1.74](http://www.alexpage.de/usb-image-tool/download/) (as alternative you can use [Etcher](https://etcher.io/)) to install Raspbian Lite onto it.
 
 
 * Optimize Raspberry Pi via `sudo raspi-config`
@@ -34,13 +34,18 @@ sudo rpi-update
 * Reboot your Raspberry Pi via `sudo reboot`.
 
 
+
 ### Install OpenVPN
 
 If the Raspberry Pi is behind a router (NAT) you have to configure port forwarding. The default OpenVPN port is 1194 (UDP), I recommend to use a different port e.g. 11920. Also configure a static local IP address for the Raspberry Pi. Change the Router DNS to the Pi hole given one.
 
 * Install OpenVPN server using the [PiVPN](http://www.pivpn.io/) installer script.
 
-`curl -L https://install.pivpn.io | bash` <br />
+```bash
+wget https://git.io/vpn -O openvpn-install.sh
+chmod 755 openvpn-install.sh
+sudo ./openvpn-install.sh
+```
 
 
 
@@ -50,6 +55,8 @@ If the Raspberry Pi is behind a router (NAT) you have to configure port forwardi
 * This e.g. returns `inet addr:10.8.0.1  P-t-P:10.8.0.1  Mask:255.255.255.0`.
 * Edit the file */etc/openvpn/server.conf* via `sudo nano /etc/openvpn/server.conf`.
 * Modify push `"dhcp-option DNS 8.8.8.8"` to push `"dhcp-option DNS 10.8.0.1"`.
+* You can comment out all other `push "dhcp-option DNS...` entries with `#` in front of it. 
+* (_optional_) Change your Port if you like to.
 * Close and save the file with *Ctrl+X*, enter *y*, enter.
 * Restart OpenVPN via `sudo systemctl restart openvpn`.
 
@@ -59,6 +66,10 @@ If the Raspberry Pi is behind a router (NAT) you have to configure port forwardi
 
 You can get the latest version of Pi-Hole including installation instructions from [here](https://github.com/pi-hole/pi-hole).
 
+The basic command to install PI-Hole is: `sudo curl -sSL https://install.pi-hole.net | bash`.
+
+The following example is not needed anymore, but in case you have troubles ensure dnsmasq.conf is correct configured.
+
 * Edit */etc/dnsmasq.conf* via: `sudo nano /etc/dnsmasq.conf`.
 * Modify `#listen-address=` to: `listen-address=127.0.0.1, 192.168.xxx.xxx, 10.8.0.1`.
 * Replace the second IP with your Raspberry Pi local network IP and the third IP is the *tun0* interface.
@@ -66,28 +77,24 @@ You can get the latest version of Pi-Hole including installation instructions fr
 
 
 
-### Install DNSCrypt
+### Install DNSCrypt-proxy v2
 
-* Install necessary system packages.
+The latest DNSCrypt-proxy releases can be found [here](https://github.com/jedisct1/dnscrypt-proxy/releases).
 
-```bash
-sudo apt -y install build-essential tcpdump dnsutils libsodium-dev
-sudo apt -y install locate bash-completion libsystemd-dev pkg-config
-```
-
-* Build DNSCrypt from source.
+* Install necessary system DNSCrypt package `cd /opt` is our dir where the files are getting dropped into.
 
 ```bash
-mkdir -p dnsproxy
-cd dnsproxy
-wget https://download.dnscrypt.org/dnscrypt-proxy/LATEST.tar.bz2
-tar -xf LATEST.tar.bz2
-cd dnscrypt-proxy[tab completion]
-sudo ldconfig
-./configure --with-systemd
-make
-sudo make install
+sudo wget https://github.com/jedisct1/dnscrypt-proxy/releases/download/2.0.8/dnscrypt-proxy-linux_arm-2.0.14.tar.gz
 ```
+
+After you downloaded the latest DNSCrypt-proxy version extract the prebuilt binary via `sudo tar -xf dnscrypt-proxy-linux_arm64-2.0.14.tar.gz`
+* Rename the extracted folder: `sudo mv linux-arm64 dnscrypt-proxy`.
+* Go into the dir with cd: `cd dnscrypt-proxy`
+* Now create a configuration file which we're are going to use form the integrated example `sudo cp example-dnscrypt-proxy.toml dnscrypt-proxy.toml` - the .toml file is the DNSCrypt-proxy configuration file.
+* Go ahead and edit the configuration file `sudo nano dnscrypt-proxy.toml`, the default port for DNS queries is 53, this is already used by the Pi-Hole default configuration, so we have to edit this to another port like _54_. The `listen addresses` line represents where the port goes over.
+* You can change the rest of the configuration how you like, for example `require_dnssec` can be set to true and `listen_addresses` must be set to another port than 53, like `127.0.0.1:54`.
+* The last two commands are `sudo ./dnscrypt-proxy -service install` to install the DNSCrypt-proxy service and to start the new service we're going to use `sudo ./dnscrypt-proxy -service start`.
+
 
 
 ### Setup DNSCrypt
@@ -98,70 +105,15 @@ sudo make install
 * Copy the dnscrypt-proxy.socket adding @resolver-name (from the ‘Name’ column in the list) at the end: `cp dnscrypt-proxy.socket dnscrypt-proxy@dnscrypt.nl-ns0.socket`.
 * Edit dnscrypt-proxy@dnscrypt.nl-ns0.socket with `nano dnscrypt-proxy@dnscrypt.nl-ns0.socket`.
 
-```bash
-[Unit]
-Description=dnscrypt-proxy dnscrypt.nl-ns0 listening socket
-
-[Socket]
-ListenStream=127.10.10.1:11153
-ListenDatagram=127.10.10.1:11153
-
-[Install]
-WantedBy=sockets.target
-```
-
-* Close and save the file with *Ctrl+X*, enter *y*, enter.
-* To complete the configuration we need to edit the dnscrypt-proxy.service as well, so we cp again: `cp dnscrypt-proxy.service dnscrypt-proxy@.service`.
-
-```bash
-[Unit]
-Description=DNSCrypt client proxy
-Documentation=man:dnscrypt-proxy(8)
-Requires=dnscrypt-proxy@%i.socket
-After=network.target
-Before=nss-lookup.target
-
-[Install]
-Also=dnscrypt-proxy@dnscrypt.nl-ns0.socket
-WantedBy=multi-user.target
-
-[Service]
-Type=simple
-NonBlocking=true
-
-# Fill in the resolver name with one from dnscrypt-resolvers.csv file
-# It is also recommended to create a dedicated system user, for example _dnscrypt
-# Additional features, such as ephemeral keys and plugins, can be enabled here as well
-ExecStart=/usr/local/sbin/dnscrypt-proxy \
-        --resolver-name=%i \
-        --user=dnscrypt
-
-Restart=always
-```
-
-* Close and save the file with *Ctrl+X*, enter *y*, enter.
-* Copy all related files to the *systemd* folder: `sudo cp ./dnscrypt-proxy@* /lib/systemd/system/`
-* Enable all related files as shown:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable dnscrypt-proxy@.service
-sudo systemctl enable dnscrypt-proxy@dnscrypt.nl-ns0.socket
-```
-* Reboot your Raspberry Pi -> `sudo reboot`.
-* After rebooting, check the status if everything is running ok. All should be in green: `sudo systemctl status -l dnscrypt-proxy@\*`.
 
 
 ### Modify DNSMasq configurations
 
-* Create an additional DNSMasq configuration file: `sudo nano /etc/dnsmasq.d/02-dnscrypt.conf`.
-* Enter the following in the file: `server=127.10.10.1#11153`.
-* Edit 01-pihole.conf: `sudo nano /etc/dnsmasq.d/01-pihole.conf`.
-* Comment (#) out all server references, which means everything which looks like: `#server=...`.
-* Edit setupVars.conf: `sudo nano /etc/pihole/setupVars.conf`.
-* Comment (#) out all piholeDNS references: `#piholeDNS1=...`.
-* Restart DNSMasq: `sudo systemctl restart dnsmasq`.
-* Reboot Raspberry Pi the last time with: `sudo reboot`.
+* Create an additional DNSMasq configuration file: `sudo nano /etc/dnsmasq.d/02-dnscrypt.conf`. If there is already an file, use the existent one via `sudo nano /etc/dnsmasq.conf` (that's the default procedure). 
+* Edit the `#listen-address=` to `listen-address=127.0.0.1, 192.168.xxx.xxx, 10.8.0.1`. The second IP (the one starting with 192.168.) is your own Rasperry Pi local network IP address while the third IP is the _tun0_ interface where OpenVPN is listening on. 
+* Now we need to create another file, `sudo nano /etc/dnsmasq.d/02-dnscrypt.conf` creates the DNSCrypt-proxy configuration but since our PI-Hole doesn't know (yet) where our PI-Hole is we need to give him our server address `server=127.0.0.1#54` - ensure port 53 is not set here, give him the port we set earlier above (in this test example 54).
+* Now we create and edit the Pi-Hole configuration, `sudo nano /etc/dnsmasq.d/01-pihole.conf` and comment out the pre-defined server preference `#server=...`.
+* The last step is to change the default setup variables, `sudo nano /etc/pihole/setupVars.conf` we need to comment out `#PIHOLE_DNS_x`and restart our local dnsmasq server with `sudo systemctl restart dnsmasq`.
 
 
 You're done! 
