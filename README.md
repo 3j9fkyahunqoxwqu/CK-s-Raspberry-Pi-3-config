@@ -1,16 +1,23 @@
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/fold_left.svg?style=social&label=Follow%20%40CHEF-KOCH)](https://twitter.com/FZeven)
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/CHEF-KOCH)
-[![Discord](https://discordapp.com/api/guilds/204394292519632897/widget.png)](https://discord.me/NVinside)
+[![Discord](https://img.shields.io/discord/418256415874875402.svg?colorA=7289da&colorB=99aab5&label=Discord&logo=discord&maxAge=60)](https://discord.me/CHEF-KOCH)
+[![Tip Me via PayPal](https://img.shields.io/badge/PayPal-tip%20me-green.svg?logo=paypal)](https://www.paypal.me/nvinside)
 
 ## Raspberry Pi 3 + Pi-Hole + OpenVPN & DNSCrypt
 
+<p align="center"> 
+<img src="">
+</p>
+
 My own guide to use PI 3 with some good programs. <br />
-Currently I'm using this [Pi 3 B starter kit](https://www.amazon.com/Raspberry-Essentials-Kit-board-Connectivity/dp/B01LWVVMUI/ref=sr_1_4?ie=UTF8&qid=1502666099&sr=8-4&keywords=raspberry+pi+3+starter+kit). <br />
+
+Currently I'm using this [Pi 3 B+ starter kit](https://www.amazon.com/V-Kits-Raspberry-Model-Starter-LATEST/dp/B07BDRD3LP/ref=sr_1_7?s=electronics&ie=UTF8&qid=1528227681&sr=1-7&keywords=Raspberry+Pi+3+model+b%2B). <br />
 
 * The benefit is that you won't need any external software like adblockers (uBlock, AdGuard, etc) any more. Maybe only for cosmetic filter rules. Ads getting blocked before they're getting downloaded which speedups your webpage loading.<br />
 * All external devices you plugin onto your Router getting automatically the adblocker lists too, which means you not need to root your device (because efficient adblockers always requiring root or some kind of tunnel which drains your battery).<br />
 * OpenVPN and DNSCrypt are included in order to encrypt your internet data traffic and DNS queries. This also will solve any DNS leaks in this case spoofing.
 * The guide is beginner friendly with easy install instructions.
+
 
 
 ### Clean system installation
@@ -60,15 +67,22 @@ sudo ./openvpn-install.sh
 * Close and save the file with *Ctrl+X*, enter *y*, enter.
 * Restart OpenVPN via `sudo systemctl restart openvpn`.
 
+Your OpenVPN server.conf file must include the following lines:
+
+```bash
+push "dhcp-option DNS 127.0.0.1"
+push "dhcp-option DNS 127.0.0.2"
+```
+
 
 
 ### Install Pi-Hole
 
-You can get the latest version of Pi-Hole including installation instructions from [here](https://github.com/pi-hole/pi-hole).
+You can get the latest version of the Pi-Hole script including installation instructions from [here](https://github.com/pi-hole/pi-hole).
 
 The basic command to install PI-Hole is: `sudo curl -sSL https://install.pi-hole.net | bash`.
 
-The following example is not needed anymore, but in case you have troubles ensure dnsmasq.conf is correct configured.
+The following **example isn't needed anymore**, but in case you have troubles ensure dnsmasq.conf is correct configured as shown here:
 
 * Edit */etc/dnsmasq.conf* via: `sudo nano /etc/dnsmasq.conf`.
 * Modify `#listen-address=` to: `listen-address=127.0.0.1, 192.168.xxx.xxx, 10.8.0.1`.
@@ -79,15 +93,17 @@ The following example is not needed anymore, but in case you have troubles ensur
 
 ### Install DNSCrypt-proxy v2
 
-The latest DNSCrypt-proxy releases can be found [here](https://github.com/jedisct1/dnscrypt-proxy/releases).
+The latest DNSCrypt-proxy releases can be found [here](https://github.com/jedisct1/dnscrypt-proxy/releases). You find the latest Server Resolver list over [here](https://github.com/jedisct1/dnscrypt-proxy/wiki/DNS-server-sources).
 
-* Install necessary system DNSCrypt package `cd /opt` is our dir where the files are getting dropped into.
+* Install the necessary system DNSCrypt package `cd /opt` is our dir where the files are getting dropped into.
 
 ```bash
-sudo wget https://github.com/jedisct1/dnscrypt-proxy/releases/download/2.0.8/dnscrypt-proxy-linux_arm-2.0.14.tar.gz
+wget https://raw.githubusercontent.com/simonclausen/dnscrypt-autoinstall/master/dnscrypt-autoinstall --no-check-certificate
+chmod +x dnscrypt-autoinstall.sh
+./dnscrypt-autoinstall.sh
 ```
 
-After you downloaded the latest DNSCrypt-proxy version extract the prebuilt binary via `sudo tar -xf dnscrypt-proxy-linux_arm64-2.0.14.tar.gz`
+After downloading the latest DNSCrypt-proxy version extract the prebuilt binary via `sudo tar -xf dnscrypt-proxy-linux_arm64-2.0.14.tar.gz`
 * Rename the extracted folder: `sudo mv linux-arm64 dnscrypt-proxy`.
 * Go into the dir with cd: `cd dnscrypt-proxy`
 * Now create a configuration file which we're are going to use form the integrated example `sudo cp example-dnscrypt-proxy.toml dnscrypt-proxy.toml` - the .toml file is the DNSCrypt-proxy configuration file.
@@ -113,8 +129,7 @@ After you downloaded the latest DNSCrypt-proxy version extract the prebuilt bina
 * Edit the `#listen-address=` to `listen-address=127.0.0.1, 192.168.xxx.xxx, 10.8.0.1`. The second IP (the one starting with 192.168.) is your own Rasperry Pi local network IP address while the third IP is the _tun0_ interface where OpenVPN is listening on. 
 * Now we need to create another file, `sudo nano /etc/dnsmasq.d/02-dnscrypt.conf` creates the DNSCrypt-proxy configuration but since our PI-Hole doesn't know (yet) where our PI-Hole is we need to give him our server address `server=127.0.0.1#54` - ensure port 53 is not set here, give him the port we set earlier above (in this test example 54).
 * Now we create and edit the Pi-Hole configuration, `sudo nano /etc/dnsmasq.d/01-pihole.conf` and comment out the pre-defined server preference `#server=...`.
-* The last step is to change the default setup variables, `sudo nano /etc/pihole/setupVars.conf` we need to comment out `#PIHOLE_DNS_x`and restart our local dnsmasq server with `sudo systemctl restart dnsmasq`.
+* The last step is to change the default setup variables, `sudo nano /etc/pihole/setupVars.conf` we need to comment out `#PIHOLE_DNS_x`and restart our local dnsmasq server via `sudo systemctl restart dnsmasq`.
 
 
 You're done! 
-
