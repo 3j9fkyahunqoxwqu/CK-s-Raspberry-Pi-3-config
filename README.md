@@ -6,7 +6,7 @@
 ## Raspberry Pi 3 + Pi-Hole + OpenVPN & DNSCrypt
 
 <p align="center"> 
-<img src="">
+<img src="https://raw.githubusercontent.com/CHEF-KOCH/CK-s-Raspberry-Pi-3-config/master/Raspberry%20PI.jpg">
 </p>
 
 My own guide to use PI 3 with some good programs. <br />
